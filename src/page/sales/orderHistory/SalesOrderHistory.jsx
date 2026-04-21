@@ -324,7 +324,7 @@ function SalesOrderHistory() {
           />
           <Tooltip title="Buyurtmani topshirish">
             <Button
-              disabled={status !== "tayyorlandi"}
+              disabled={!["tayyorlandi", "dostavka"].includes(status)}
               size="small"
               icon={
                 printed_status ? (

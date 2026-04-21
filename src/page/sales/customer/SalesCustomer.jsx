@@ -45,6 +45,11 @@ function SalesCustomer() {
       width: 150,
     },
     {
+      title: "Chat ID",
+      dataIndex: "chat_id",
+      width: 150,
+    },
+    {
       title: "Korxona",
       dataIndex: "korxona",
       width: 150,

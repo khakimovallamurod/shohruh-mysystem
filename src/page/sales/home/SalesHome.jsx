@@ -37,6 +37,7 @@ const statusColorMap = {
   tayyorlandi: "gold",
   tugatildi: "red",
   dostavka: "blue",
+  topshirilmadi: "red",
   topshirildi: "green",
 };
 
@@ -51,6 +52,7 @@ function SalesOrderCard({ order, onOpen }) {
         height: "100%",
         boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)",
         border: "1px solid rgba(148, 163, 184, 0.16)",
+        background: order.status === "topshirilmadi" ? "#fff1f2" : "#ffffff",
       }}
       styles={{ body: { display: "flex", flexDirection: "column", gap: 16 } }}
     >
@@ -386,12 +388,16 @@ function SalesHome() {
               >
                 Bekor qilish
               </Button>
-              <Button
-                type="primary"
-                icon={<CheckOutlined />}
-                disabled={selectedOrder.status !== "tayyorlandi"}
-                onClick={() =>
-                  setOpenGiveOrderModal({
+                <Button
+                  type="primary"
+                  icon={<CheckOutlined />}
+                  disabled={
+                  !["tayyorlandi", "dostavka", "topshirilmadi"].includes(
+                    selectedOrder.status
+                  )
+                  }
+                  onClick={() =>
+                    setOpenGiveOrderModal({
                     open: true,
                     orderId: selectedOrder.id,
                   })

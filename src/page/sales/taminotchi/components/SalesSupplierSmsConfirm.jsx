@@ -1,5 +1,4 @@
-import { Button, Form, message } from "antd";
-import { InputOTP } from "antd-input-otp";
+import { Button, Form, Input, message } from "antd";
 import React, { useState } from "react";
 import MainLightTitle from "../../../../components/ui/title/MainLightTitle";
 import MainText from "../../../../components/ui/title/MainText";
@@ -19,7 +18,7 @@ function SalesSupplierSmsConfirm({ userData, handleClose }) {
     try {
       const data = {
         taminotchi_id: userData?.taminotchi_id,
-        code: values?.otp?.join(""),
+        code: String(values?.code || "").trim(),
       };
       const resData = await addConfirm(data).unwrap();
       if (resData?.success === true) {
@@ -54,15 +53,18 @@ function SalesSupplierSmsConfirm({ userData, handleClose }) {
       </div>
       <Form form={form} onFinish={handleSubmit} layout="vertical">
         <Form.Item
-          name="otp"
-          rules={[{ required: true, message: "Kod talab qilinadi!" }]}
+          name="code"
+          rules={[
+            { required: true, message: "Kod talab qilinadi!" },
+            { pattern: /^\d{5}$/, message: "Kod 5 xonali raqam bo'lishi kerak!" },
+          ]}
         >
-          <InputOTP
+          <Input
             autoFocus
             disabled={isSubmitting}
-            length={5}
-            __EXPERIMENTAL_autoSubmit={form}
-            inputType="numeric"
+            maxLength={5}
+            inputMode="numeric"
+            placeholder="12345"
           />
         </Form.Item>
         <Form.Item>

@@ -1,5 +1,6 @@
 
-const MAIN_API = "https://maestro-samarkand.uz/shohruh-system/api";
+// const MAIN_API = "/shohruh-system/shohruh-system/api";
+const MAIN_API = "/api";
 // https://maestro-samarkand.uz/shohruh-system/api
 /* AUTH */
 const AUTH_API = {
@@ -98,7 +99,7 @@ const ADMIN_API = {
         `/admin/get-harajatlar.php?sana1=${start}&sana2=${end}&harajat_category_id=${categoryId || ""}`,
     FINANCE_SALARY_GET: ({ start, end }) =>
         `/kassir/get-oylik-pay-history.php?worker_id=0&sana1=${start}&sana2=${end}`,
-    FINANCE_SALARY_ADD: "/admin/pay-worker.php",
+    FINANCE_SALARY_ADD: "/kassir/pay-worker.php",
 
     /* RESIDUE */
     RESIDUE_GET: "/admin/get-ostatka.php",

@@ -27,7 +27,6 @@ function AdminSalaryModal({ workers = [], onClose }) {
         bank: 0,
         karta: 0,
         valyuta: 0,
-        oy: values?.oy,
         izoh: values?.izoh || "Oylik to'lovi",
       };
       const resData = await addSalary(body).unwrap();
@@ -89,9 +88,6 @@ function AdminSalaryModal({ workers = [], onClose }) {
           </Select>
         </Form.Item>
         <MainInputPrice label="Summa" name="summa" status={status} />
-        <Form.Item label="Oy" name="oy">
-          <Input allowClear placeholder="Masalan: 2024-01" />
-        </Form.Item>
         <Form.Item
           label="Izoh"
           name="izoh"

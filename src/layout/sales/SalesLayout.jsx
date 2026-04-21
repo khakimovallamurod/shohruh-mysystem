@@ -1,46 +1,28 @@
-import { Layout } from "antd";
+import { Button, Layout } from "antd";
 import { Content } from "antd/es/layout/layout";
 import React, { useState } from "react";
-import MainHeader from "../../components/common/mainHeader/MainHeader";
-import MainMenu from "../../components/common/mainMenu/MainMenu";
+import { useDispatch } from "react-redux";
+import { logOut } from "../../features/auth/authSlice";
 import MainOutlet from "../../components/common/outlet/MainOutlet";
+import MainHeader from "../../components/common/mainHeader/MainHeader";
 import SalesSider from "../../components/sales/sider/SalesSider";
-import SwitchDepartBtn from "../../components/common/switchDepartBtn/SwitchDepartBtn";
-import SalesNotification from "../../components/sales/notification/SalesNotification";
-import {
-  CASHIER_HOME_ROUTE,
-} from "../../util/path";
 import styles from "./salesLayout.module.css";
 
 function SalesLayout() {
-  const [collapsed, setCollapsed] = useState(true);
-  const classess = [styles.layout];
-
-  if (!collapsed) classess.push(styles.active);
+  const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <Layout style={{ height: "100vh" }}>
       <SalesSider collapsed={collapsed} setCollapsed={setCollapsed} />
-
-      <Layout className={classess.join(" ")}>
+      <Layout>
         <MainHeader
-          menu={
-            <MainMenu
-              otherItems={
-                <>
-                  <SwitchDepartBtn
-                    title={"Kassirga o'tish"}
-                    to={CASHIER_HOME_ROUTE}
-                  />
-                  <SalesNotification />
-                </>
-              }
-            />
-          }
+          menu={<Button onClick={() => dispatch(logOut())}>Chiqish</Button>}
           menuFor="admin"
         />
 
         <Content
+          className={`${styles.layout} ${!collapsed ? styles.active : ""}`}
           style={{
             padding: 24,
             minHeight: 280,

@@ -12,7 +12,6 @@ import MainModal from "../../../../components/common/modal/MainModal";
 import {
   useAddSalesCustomerMutation,
   useEditSalesCustomerMutation,
-  useGetSalesCustomerCategoryQuery,
   useGetSalesSupplierQuery,
 } from "../../../../features/sales/customer/salesCustomerApiSlice";
 import { useGetSalesRegionQuery } from "../../../../features/sales/salesApiSlice";
@@ -42,7 +41,6 @@ function SalesAddCustomerModal(props, ref) {
   const key = "addCustomer";
 
   /* API */
-  const customerCategoryRes = useGetSalesCustomerCategoryQuery();
   const supplierRes = useGetSalesSupplierQuery();
   const allRegionRes = useGetSalesRegionQuery();
   const [addCustomer] = useAddSalesCustomerMutation();
@@ -57,19 +55,7 @@ function SalesAddCustomerModal(props, ref) {
   }, [allRegionRes?.isError, allRegionRes?.isLoading]);
 
   /* Memo */
-  // Customer category options
-  const customerCategoryOptions = useMemo(() => {
-    if (
-      customerCategoryRes.data?.success === true &&
-      customerCategoryRes.data?.data &&
-      Array.isArray(customerCategoryRes.data?.data)
-    ) {
-      return customerCategoryRes.data.data;
-    }
-    return [];
-  }, [customerCategoryRes.data]);
-
-  // Customer category options
+  // Supplier options
   const supplierOptions = useMemo(() => {
     if (
       supplierRes.data?.success === true &&
@@ -121,10 +107,11 @@ function SalesAddCustomerModal(props, ref) {
     });
     try {
       const data = {
-        category_id: values?.customerCategory,
+        category_id: 1,
         dostavka_id: values?.supplier,
         fio: values?.fio,
         telefon: values?.telefon,
+        chat_id: values?.chat_id || "",
         telefon2: values?.telefon || "",
         telefon3: values?.telefon || "",
         korxona: values?.korxona,
@@ -186,10 +173,10 @@ function SalesAddCustomerModal(props, ref) {
   /* Form set values */
   const handleFormSetValues = (data) => {
     form.setFieldsValue({
-      customerCategory: data?.category_id,
       supplier: data?.dostavka_id,
       fio: data?.fio,
       telefon: data?.telefon,
+      chat_id: data?.chat_id,
       korxona: data?.korxona,
       viloyat: data?.viloyat_id,
       tuman: data?.tuman_id,
@@ -231,38 +218,6 @@ function SalesAddCustomerModal(props, ref) {
         onClose={handleCloseAddCustomerModal}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item
-            label={"Mijoz toifasi"}
-            name="customerCategory"
-            rules={[
-              {
-                required: true,
-                message: "Mijoz toifasini tanlang!",
-              },
-            ]}
-            style={{ width: "100%" }}
-            hasFeedback
-            validateStatus={status}
-          >
-            <Select
-              allowClear
-              showSearch
-              placeholder="Mijoz toifasini tanlash"
-              loading={customerCategoryRes?.isLoading}
-              filterOption={(inputValue, option) =>
-                option.children
-                  .toLowerCase()
-                  .indexOf(inputValue?.toLowerCase()) >= 0
-              }
-            >
-              {customerCategoryOptions.map((option) => (
-                <Select.Option value={option.id} key={option.id}>
-                  {option?.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
           <Form.Item
             label={"Dostavkachi"}
             name="supplier"
@@ -331,6 +286,14 @@ function SalesAddCustomerModal(props, ref) {
                 />
               )}
             </ReactInputMask>
+          </Form.Item>
+          <Form.Item
+            label="Chat ID"
+            name="chat_id"
+            hasFeedback
+            validateStatus={status}
+          >
+            <Input placeholder="Telegram chat id" />
           </Form.Item>
           <Form.Item
             label="Telefon 2"

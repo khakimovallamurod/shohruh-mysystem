@@ -1,21 +1,19 @@
 import {
-  DollarOutlined,
+  BankOutlined,
   ContactsOutlined,
   ExperimentOutlined,
   FileTextOutlined,
   FundOutlined,
   InboxOutlined,
-  MoneyCollectOutlined,
   PieChartOutlined,
   ScissorOutlined,
   SettingOutlined,
   ShoppingCartOutlined,
   TeamOutlined,
   WalletOutlined,
-  BankOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { sales_routes } from "../../../util/path";
 import LazyImage from "../../common/lazyLoad/LazyImage";
@@ -32,21 +30,47 @@ const items = [
   getItem("Dashboard", sales_routes.dashboard, <FundOutlined />),
   getItem("Sotuv", sales_routes.home, <PieChartOutlined />),
   getItem("Kassa", sales_routes.kassa, <BankOutlined />),
-  getItem("Razilka", sales_routes.razilka, <ScissorOutlined />),
-  { type: "divider" },
-  getItem("Ta'minotchi qo'shish", sales_routes.supplierManagement, <ShoppingCartOutlined />),
+  getItem(
+    "Ta'minotchi qo'shish",
+    sales_routes.supplierManagement,
+    <ShoppingCartOutlined />
+  ),
   getItem("Mijoz qo'shish", sales_routes.customerManagement, <TeamOutlined />),
-  getItem("Xolodilnikka o'tkazish", sales_routes.warehouseTransfer, <ShoppingCartOutlined />),
-  getItem("Olingan qarzlar", sales_routes.financeDebts, <MoneyCollectOutlined />),
-  getItem("Ta'minotchiga berilgan pullar", sales_routes.supplierManagementPayments, <DollarOutlined />),
-  getItem("Barcha ta'minotchilar hisoboti", sales_routes.supplierManagementAllReport, <FundOutlined />),
-  getItem("Ta'minotchi hisoboti", sales_routes.supplierManagementReport, <FileTextOutlined />),
+  getItem(
+    "Xolodilnikka o'tkazish",
+    sales_routes.warehouseTransfer,
+    <ShoppingCartOutlined />
+  ),
+  getItem(
+    "Ta'minotchiga berilgan pullar",
+    sales_routes.supplierManagementPayments,
+    <BankOutlined />
+  ),
+  getItem(
+    "Barcha ta'minotchilar hisoboti",
+    sales_routes.supplierManagementAllReport,
+    <FundOutlined />
+  ),
+  getItem(
+    "Ta'minotchi hisoboti",
+    sales_routes.supplierManagementReport,
+    <FileTextOutlined />
+  ),
   getItem("Hisobot massa", sales_routes.warehouseMassReport, <InboxOutlined />),
-  getItem("Hisobot mijoz", sales_routes.customerManagementReport, <ContactsOutlined />),
-  getItem("Mijozlardan kirim chiqim", sales_routes.customerManagementTransactions, <WalletOutlined />),
+  getItem(
+    "Hisobot mijoz",
+    sales_routes.customerManagementReport,
+    <ContactsOutlined />
+  ),
+  getItem(
+    "Mijozlardan kirim chiqim",
+    sales_routes.customerManagementTransactions,
+    <WalletOutlined />
+  ),
   getItem("Xarajatlar", sales_routes.financeExpenses, <ExperimentOutlined />),
-  getItem("Oylik", sales_routes.financeSalary, <DollarOutlined />),
+  getItem("Oylik", sales_routes.financeSalary, <BankOutlined />),
   { type: "divider" },
+  getItem("Razilka", sales_routes.razilka, <ScissorOutlined />),
   getItem("Sozlamalar", "sub-settings", <SettingOutlined />, [
     getItem("Bo'lim qo'shish", sales_routes.settingsDepartment),
     getItem("Polka qo'shish", sales_routes.settingsPolka),
@@ -57,12 +81,12 @@ const items = [
   ]),
 ];
 
-const checkOpen = (menuItems) => {
+const checkOpen = (menuItems, pathname) => {
   const result = menuItems.find((item) => {
-    if (item.key === window.location.pathname) return item.key;
+    if (item.key === pathname) return item.key;
     if (item.children) {
       const child = item.children.find(
-        (menuChild) => menuChild.key === window.location.pathname
+        (menuChild) => menuChild.key === pathname
       );
       if (child) return item.key;
     }
@@ -74,10 +98,15 @@ const checkOpen = (menuItems) => {
 function SalesSider({ collapsed, setCollapsed }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [active, setActive] = useState({
-    sub: checkOpen(items),
-    item: window.location.pathname,
-  });
+  const [openKeys, setOpenKeys] = useState([]);
+
+  const active = useMemo(
+    () => ({
+      sub: checkOpen(items, pathname),
+      item: pathname,
+    }),
+    [pathname]
+  );
 
   useEffect(() => {
     const res = localStorage.getItem(siderLocalName);
@@ -85,18 +114,8 @@ function SalesSider({ collapsed, setCollapsed }) {
   }, [setCollapsed]);
 
   useEffect(() => {
-    if (pathname === sales_routes.home) {
-      navigate(sales_routes.dashboard, { replace: true });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    setActive({
-      sub: checkOpen(items),
-      item: pathname,
-    });
-  }, [pathname]);
+    setOpenKeys(active.sub ? [active.sub] : []);
+  }, [active.sub]);
 
   const onCollapse = (val) => {
     setCollapsed(val);
@@ -142,10 +161,10 @@ function SalesSider({ collapsed, setCollapsed }) {
         className="sales-sider-menu"
         style={{ height: "calc(100vh - 80px)", overflow: "auto" }}
         selectedKeys={[active.item]}
-        defaultOpenKeys={[active.sub]}
-        defaultSelectedKeys={[active.item]}
+        openKeys={openKeys}
         mode="inline"
         items={items}
+        onOpenChange={(keys) => setOpenKeys(keys)}
         onClick={({ key }) => navigate(key)}
       />
     </Sider>

@@ -28,7 +28,7 @@ export const ROLE_LIST = {
   agent: "agent",
   cashier: "kassir",
   crm: "crm",
-  inkasator: 'inkassator'
+  inkasator: "inkassator",
 };
 
 /*

@@ -2,124 +2,69 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, message } from "antd";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../features/auth/authApiSlice";
 import { setCredentials } from "../../features/auth/authSlice";
-import { ROLE_LIST } from "../../util/const";
-import {
-  AGENT_HOME_ROUTE,
-  admin_routes,
-  CASHIER_HOME_ROUTE,
-  CrmRoutes,
-  GRIND_PRODUCT_HOME_ROUTE,
-  InkasatorRoutes,
-  PASSWORD_RESET_ROUTE,
-  PRODUCT_STORAGE_HOME_ROUTE,
-  SALES_HOME_ROUTE,
-  SUPPLIER_HOME_ROUTE,
-  UPLOADER_HOME_ROUTE,
-} from "../../util/path";
-
 import MainText from "../../components/ui/title/MainText";
+import { ROLE_LIST } from "../../util/const";
+import { SALES_DASHBOARD_ROUTE } from "../../util/path";
 import styles from "./register.module.css";
 
 export default function SignIn() {
-  /* State */
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState(false);
-  /* Dispatch */
   const dispatch = useDispatch();
-  /* Navigate */
   const navigate = useNavigate();
-
-  /* API */
   const [login] = useLoginMutation();
 
-  /* Handle Submit */
   async function handleSubmit(values) {
-    /* Set Event */
     setIsSubmitting(true);
-    /* Set status */
     setStatus("validating");
 
     try {
-      const data = {
+      const resData = await login({
         login: values.login,
         parol: values.password,
-      };
+      }).unwrap();
 
-      const resData = await login(data).unwrap();
-      if (resData.success === true) {
-        /* Set Credentials And Navigate */
-        if (resData.data && resData?.data.rol) {
-          setStatus("success");
-          /* Message */
-          if (resData.message) message.success(resData.message);
+      if (resData?.success === true) {
+        if (resData?.data && resData?.data?.rol) {
+          if (resData.data.rol !== ROLE_LIST.sales) {
+            message.error("Bu loyiha faqat sotuv roli uchun qoldirilgan!");
+            setStatus("warning");
+            return;
+          }
 
-          const { data } = resData;
+          if (resData.message) {
+            message.success(resData.message);
+          }
+
           dispatch(
             setCredentials({
               user: {
-                name: data?.ism,
-                surname: data?.familya,
-                email: data?.email,
-                telefon: data?.telefon,
-                image: data?.rasm,
-                login: data?.login,
+                name: resData.data?.ism,
+                surname: resData.data?.familya,
+                email: resData.data?.email,
+                telefon: resData.data?.telefon,
+                image: resData.data?.rasm,
+                login: resData.data?.login,
               },
-              accessToken: data?.token,
-              role: data?.rol,
+              accessToken: resData.data?.token,
+              role: resData.data?.rol,
               remember: values.remember,
             })
           );
 
-          /* Navigate with role  */
-          switch (data.rol) {
-            case ROLE_LIST.admin:
-              navigate(admin_routes.home, { replace: true });
-              break;
-            case ROLE_LIST.cashier:
-              navigate(CASHIER_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.supplier:
-              navigate(SUPPLIER_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.storage:
-              navigate(PRODUCT_STORAGE_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.sales:
-              navigate(SALES_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.grind:
-              navigate(GRIND_PRODUCT_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.uploader:
-              navigate(UPLOADER_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.agent:
-              navigate(AGENT_HOME_ROUTE, { replace: true });
-              break;
-            case ROLE_LIST.crm:
-              navigate(CrmRoutes.home, { replace: true });
-              break;
-            case ROLE_LIST.inkasator:
-              navigate(InkasatorRoutes.home, { replace: true });
-              break;
-            default:
-              break;
-          }
+          setStatus("success");
+          navigate(SALES_DASHBOARD_ROUTE, { replace: true });
         } else {
-          /* Message */
           message.error("Mavjud bo'lmagan toifa!");
-
-          /* Set status */
           setStatus("warning");
         }
-      } else if (resData.success === false) {
-        /* Error message */
-        if (resData.message) message.error(resData.message);
-
-        /* Set status */
+      } else if (resData?.success === false) {
+        if (resData.message) {
+          message.error(resData.message);
+        }
         setStatus("error");
       }
     } catch (err) {
@@ -127,7 +72,6 @@ export default function SignIn() {
         message.warning("Ulanishda xatolik! Qaytadan urinib ko'ring!");
       }
 
-      /* Set status */
       setStatus("warning");
     } finally {
       setIsSubmitting(false);
@@ -170,10 +114,6 @@ export default function SignIn() {
           <Form.Item name="remember" noStyle valuePropName="checked">
             <Checkbox>Meni eslab qol</Checkbox>
           </Form.Item>
-
-          <Link className={styles.loginFormForgot} to={PASSWORD_RESET_ROUTE}>
-            Parolni unutdingizmi?
-          </Link>
         </Form.Item>
 
         <Form.Item>
@@ -185,7 +125,6 @@ export default function SignIn() {
           >
             Kirish
           </Button>
-          Yoki <Link to="">Ro'yxatdan o'tish!</Link>
         </Form.Item>
       </Form>
     </>

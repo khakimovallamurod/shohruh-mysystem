@@ -2,9 +2,9 @@ import {
   Button,
   Card,
   Form,
+  Input,
   message
 } from "antd";
-import { InputOTP } from "antd-input-otp";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLightTitle from "../../../components/ui/title/MainLightTitle";
@@ -21,7 +21,6 @@ function SupplierConfirmSms() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState("");
   const [paramOrderId, setParamOrderId] = useState(null);
-  const [code, setCode] = useState('')
 
   /* Message */
   const [messageApi, contextHolder] = message.useMessage();
@@ -38,9 +37,7 @@ function SupplierConfirmSms() {
 
   useEffect(() => {
     const paramId = query.get("orderId");
-    const code = query.get('code');
     if (paramId) {
-      setCode(code);
       setParamOrderId(paramId);
     } else {
       navigate(SUPPLIER_HOME_ROUTE, { replace: true });
@@ -57,7 +54,7 @@ function SupplierConfirmSms() {
     });
     try {
       const data = {
-        code: values?.otp?.join(""),
+        code: String(values?.code || "").trim(),
       };
       const resData = await addConfirmSmsKod({
         orderId: paramOrderId,
@@ -115,7 +112,6 @@ function SupplierConfirmSms() {
         >
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <MainLightTitle>SMS kodni kiriting!</MainLightTitle>
-            <h2>{code}</h2>
           </div>
           <Form
             form={form}
@@ -124,20 +120,24 @@ function SupplierConfirmSms() {
             layout="vertical"
           >
             <Form.Item
-              name="otp"
+              name="code"
               rules={[
                 {
                   required: true,
                   message: "SMS kod talab qilinadi!",
                 },
+                {
+                  pattern: /^\d{5}$/,
+                  message: "Kod 5 xonali raqam bo'lishi kerak!",
+                },
               ]}
             >
-              <InputOTP
-                autoFocus={true}
+              <Input
+                autoFocus
                 disabled={isSubmitting}
-                length={5}
-                __EXPERIMENTAL_autoSubmit={form} // If you want to auto submit when all fields is filled, use this, otherwise, don't use it!
-                inputType="numeric"
+                maxLength={5}
+                inputMode="numeric"
+                placeholder="12345"
               />
             </Form.Item>
             <Form.Item>

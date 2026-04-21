@@ -162,7 +162,7 @@ export const SALES_DASHBOARD_ROUTE = "/sales/dashboard";
 export const SALES_KASSA_ROUTE = "/sales/kassa";
 export const SALES_RAZILKA_ROUTE = "/sales/razilka";
 export const sales_routes = {
-  home: SALES_HOME_ROUTE,
+  home: "/sales/home",
   dashboard: SALES_DASHBOARD_ROUTE,
   kassa: SALES_KASSA_ROUTE,
   razilka: SALES_RAZILKA_ROUTE,

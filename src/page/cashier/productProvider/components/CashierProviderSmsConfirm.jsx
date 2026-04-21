@@ -1,5 +1,4 @@
-import { Button, Form, message } from "antd";
-import { InputOTP } from "antd-input-otp";
+import { Button, Form, Input, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -35,7 +34,7 @@ function CashierProviderSmsConfirm({ userData, handleClose }) {
     try {
       const data = {
         taminotchi_id: userData?.taminotchi_id,
-        code: values?.otp?.join(""),
+        code: String(values?.code || "").trim(),
       };
       const resData = await addConfirmSmsKod(data).unwrap();
       if (resData?.success === true) {
@@ -97,20 +96,24 @@ function CashierProviderSmsConfirm({ userData, handleClose }) {
         layout="vertical"
       >
         <Form.Item
-          name="otp"
+          name="code"
           rules={[
             {
               required: true,
               message: "SMS kod talab qilinadi!",
             },
+            {
+              pattern: /^\d{5}$/,
+              message: "Kod 5 xonali raqam bo'lishi kerak!",
+            },
           ]}
         >
-          <InputOTP
-            autoFocus={true}
+          <Input
+            autoFocus
             disabled={isSubmitting}
-            length={5}
-            __EXPERIMENTAL_autoSubmit={form} // If you want to auto submit when all fields is filled, use this, otherwise, don't use it!
-            inputType="numeric"
+            maxLength={5}
+            inputMode="numeric"
+            placeholder="12345"
           />
         </Form.Item>
         <Form.Item>
