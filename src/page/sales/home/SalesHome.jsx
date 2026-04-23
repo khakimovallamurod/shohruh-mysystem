@@ -3,6 +3,7 @@ import {
   Card,
   Col,
   Empty,
+  message,
   Row,
   Skeleton,
   Space,
@@ -25,8 +26,8 @@ import MainModal from "../../../components/common/modal/MainModal";
 import MainNumberFormat from "../../../components/common/numberFormat/MainNumberFormat";
 import PrintChekOfSales from "../../../components/common/printChek/PrintChekOfSales";
 import Section from "../../../components/common/section/Section";
-import SupplierOrderSalesGive from "../../../components/supplier/order/orderSales/SupplierOrderSalesGive";
 import { useGetSalesOrderHistoryQuery } from "../../../features/sales/orderHistory/salesOrderHistoryApiSlice";
+import { useAddSupplierGiveSalesOrderMutation } from "../../../features/supplier/order/orderOfSales/supplierOrderOfSalesApiSlice";
 import { usePutSalesPrintChekConfirmMutation } from "../../../features/sales/salesApiSlice";
 import SalesOrderCloseModal from "../orderHistory/components/SalesOrderCloseModal";
 import SalesMakeOrderDrawer from "./SalesMakeOrderDrawer";
@@ -105,12 +106,10 @@ function SalesHome() {
     refetch: refetchOrders,
   } = useGetSalesOrderHistoryQuery();
   const [confirmPrinted] = usePutSalesPrintChekConfirmMutation();
+  const [confirmOrderDirect, { isLoading: confirmingOrder }] =
+    useAddSupplierGiveSalesOrderMutation();
 
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [openGiveOrderModal, setOpenGiveOrderModal] = useState({
-    open: false,
-    orderId: null,
-  });
   const [openMakeOrderDrawer, setOpenMakeOrderDrawer] = useState(false);
 
   const orders = useMemo(() => {
@@ -206,6 +205,37 @@ function SalesHome() {
     });
   };
 
+  const handleConfirmOrder = async (orderId) => {
+    if (!orderId) return;
+    try {
+      const fallbackRepaymentDate = new Date(Date.now() + 86400000)
+        .toISOString()
+        .slice(0, 10);
+      const res = await confirmOrderDirect({
+        id: orderId,
+        body: {
+          naqd: 0,
+          naqdusd: 0,
+          valyuta: 0,
+          plastik: 0,
+          karta: 0,
+          muddat: fallbackRepaymentDate,
+          auto_confirm: true,
+        },
+      }).unwrap();
+
+      if (res?.success === true) {
+        message.success(res?.message || "Muvaffaqiyatli tasdiqlandi");
+        setSelectedOrder(null);
+        refetchOrders();
+      } else {
+        message.error(res?.message || "Tasdiqlashda xatolik yuz berdi");
+      }
+    } catch (err) {
+      message.error("Ulanishda xatolik! Qaytadan urinib ko'ring!");
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <PrintChekOfSales ref={printRef} printData={printData} />
@@ -216,22 +246,6 @@ function SalesHome() {
         onClose={() => setOpenMakeOrderDrawer(false)}
         onSuccess={refetchOrders}
       />
-
-      <MainModal
-        open={openGiveOrderModal.open}
-        onClose={() => setOpenGiveOrderModal({ open: false, orderId: null })}
-        title="Buyurtmani tasdiqlash"
-        width={720}
-      >
-        <SupplierOrderSalesGive
-          orderId={openGiveOrderModal.orderId}
-          onClose={() => {
-            setOpenGiveOrderModal({ open: false, orderId: null });
-            refetchOrders();
-          }}
-          from="sales"
-        />
-      </MainModal>
 
       <MainModal
         open={Boolean(selectedOrder)}
@@ -388,20 +402,16 @@ function SalesHome() {
               >
                 Bekor qilish
               </Button>
-                <Button
-                  type="primary"
-                  icon={<CheckOutlined />}
-                  disabled={
+              <Button
+                type="primary"
+                icon={<CheckOutlined />}
+                loading={confirmingOrder}
+                disabled={
                   !["tayyorlandi", "dostavka", "topshirilmadi"].includes(
                     selectedOrder.status
                   )
-                  }
-                  onClick={() =>
-                    setOpenGiveOrderModal({
-                    open: true,
-                    orderId: selectedOrder.id,
-                  })
                 }
+                onClick={() => handleConfirmOrder(selectedOrder.id)}
               >
                 Tasdiqlash
               </Button>
