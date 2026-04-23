@@ -33,6 +33,13 @@ export const productReceptionApiSlice = apiSlice
         }),
         invalidatesTags: [PRODUCT_RECEPTION_TAG],
       }),
+      sendProdRecSms: builder.mutation({
+        query: (body) => ({
+          url: SKLAD_API.PRODUCT_RECEPTION_SMS_SEND,
+          method: "POST",
+          body,
+        }),
+      }),
       deleteProductReceptionItem: builder.mutation({
         query: (id) => ({
           url: SKLAD_API.PRODUCT_RECEPTION_DEL(id),
@@ -48,5 +55,6 @@ export const {
   useGetProdRecByDateMutation,
   useGetProdRecQuery,
   useAddProdRecMutation,
+  useSendProdRecSmsMutation,
   useDeleteProductReceptionItemMutation,
 } = productReceptionApiSlice;

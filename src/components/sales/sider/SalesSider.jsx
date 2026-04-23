@@ -1,6 +1,7 @@
 import {
   BankOutlined,
   ContactsOutlined,
+  DownloadOutlined,
   ExperimentOutlined,
   FileTextOutlined,
   FundOutlined,
@@ -36,6 +37,7 @@ const items = [
     <ShoppingCartOutlined />
   ),
   getItem("Mijoz qo'shish", sales_routes.customerManagement, <TeamOutlined />),
+  getItem("Mahsulot kirim", sales_routes.productReception, <DownloadOutlined />),
   getItem(
     "Xolodilnikka o'tkazish",
     sales_routes.warehouseTransfer,
@@ -45,6 +47,11 @@ const items = [
     "Ta'minotchiga berilgan pullar",
     sales_routes.supplierManagementPayments,
     <BankOutlined />
+  ),
+  getItem(
+    "Ta'minotchidan pul olish",
+    sales_routes.supplierCashIn,
+    <WalletOutlined />
   ),
   getItem(
     "Barcha ta'minotchilar hisoboti",

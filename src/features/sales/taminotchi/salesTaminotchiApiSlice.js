@@ -22,6 +22,14 @@ export const salesTaminotchiApiSlice = apiSlice
         }),
         invalidatesTags: [SALES_TAMINOTCHI_TAG],
       }),
+      addSalesTaminotchiCashIn: builder.mutation({
+        query: (body) => ({
+          url: SALES_API.TAMINOTCHI_CASH_IN_ADD,
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: [SALES_TAMINOTCHI_TAG],
+      }),
       addSalesTaminotchiSmsConfirm: builder.mutation({
         query: (body) => ({
           url: SALES_API.TAMINOTCHI_SMS_CONFIRM_ADD,
@@ -37,5 +45,6 @@ export const {
   useGetSalesTaminotchiQuery,
   useGetSalesTaminotchiPayHistoryQuery,
   useAddSalesTaminotchiPayMutation,
+  useAddSalesTaminotchiCashInMutation,
   useAddSalesTaminotchiSmsConfirmMutation,
 } = salesTaminotchiApiSlice;
