@@ -190,6 +190,7 @@ const SKLAD_API = {
     PRODUCT_RECEPTION_GET_BY_DATE: (date) =>
         `/sklad/get-krim.php?sana1=${date.start}&sana2=${date.end}`,
     PRODUCT_RECEPTION_DEL: (id) => `/sklad/get-krim.php?id=${id}`,
+    PRODUCT_RECEPTION_SMS_SEND: "/sklad/send-krim-sms.php",
 };
 
 /* GRIND PRODUCT */
@@ -252,7 +253,7 @@ const PRODUCT_STORAGE = {
     NOTIF_FROM_RECEPTION_GET: "/saqlash/get-krim-count.php",
     NOTIF_LIST_FROM_RECEPTION_GET: "/saqlash/get-must-krim-puts.php",
     NOTIF_FROM_GRIND_GET: "/saqlash/get-zayavkamay-count.php",
-    NOTIF_LIST_FROM_GRIND_GET: "saqlash/get-maydalash-orders.php",
+    NOTIF_LIST_FROM_GRIND_GET: "/saqlash/get-maydalash-orders.php",
 
     /* POLKA */
     POLKA_GET: "/saqlash/get-polka.php",
@@ -323,6 +324,7 @@ const SALES_API = {
     CUSTOMER_ADD: "/sotuv/add-client.php",
     CUSTOMER_GET: "/sotuv/get-clients.php",
     CUSTOMER_PUT: (id) => `/sotuv/edit-client.php?id=${id}`,
+    CUSTOMER_CASH_IN_ADD: "/sotuv/client-pul-olish.php",
 
     // Customer category
     CUSTOMER_CATEGORY_GET: "/sotuv/get-client-category.php",
@@ -364,7 +366,12 @@ const SALES_API = {
     TAMINOTCHI_PAY_HISTORY_GET: ({ taminotchiId, start, end }) =>
         `/sotuv/get-taminotchi-pay-history.php?taminotchi_id=${taminotchiId || 0}&sana1=${start || ""}&sana2=${end || ""}`,
     TAMINOTCHI_PAY_ADD: "/kassir/pay-taminotchi.php",
+    TAMINOTCHI_CASH_IN_ADD: "/sotuv/taminotchi-pul-olish.php",
     TAMINOTCHI_SMS_CONFIRM_ADD: "/kassir/check-sms-code.php",
+
+    /* MIJOZ TO'LOVLARI */
+    CUSTOMER_PAY_HISTORY_GET: ({ clientId, start, end }) =>
+        `/sotuv/get-client-pay-history.php?client_id=${clientId || 0}&sana1=${start || ""}&sana2=${end || ""}`,
 
     /* DELETE ORDER */
     ORDER_DELETE_POST: "/sotuv/delete-order-item.php",
