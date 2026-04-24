@@ -38,6 +38,20 @@ const salesCustomerApiSlice = apiSlice
         }),
         invalidatesTags: [SALES_CUSTOMER_TAG],
       }),
+      /* Add Cash In */
+      addSalesCustomerCashIn: builder.mutation({
+        query: (body) => ({
+          url: SALES_API.CUSTOMER_CASH_IN_ADD,
+          method: "POST",
+          body,
+        }),
+        invalidatesTags: [SALES_CUSTOMER_TAG],
+      }),
+      /* Pay History */
+      getSalesCustomerPayHistory: builder.query({
+        query: (params) => SALES_API.CUSTOMER_PAY_HISTORY_GET(params),
+        providesTags: [SALES_CUSTOMER_TAG],
+      }),
     }),
   });
 
@@ -47,4 +61,6 @@ export const {
   useGetSalesCustomerCategoryQuery,
   useGetSalesSupplierQuery,
   useEditSalesCustomerMutation,
+  useAddSalesCustomerCashInMutation,
+  useGetSalesCustomerPayHistoryQuery,
 } = salesCustomerApiSlice;

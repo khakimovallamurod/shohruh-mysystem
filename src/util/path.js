@@ -171,7 +171,7 @@ export const sales_routes = {
   productReception: "/sales/productReception",
   warehouseTransfer: "/sales/warehouse/transfer",
   financeDebts: "/sales/finance/debts",
-  supplierCashIn: "/sales/supplierManagement/cashIn",
+  customerCashIn: "/sales/supplierManagement/cashIn",
   supplierManagementPayments: "/sales/supplierManagement/payments",
   supplierManagementAllReport: "/sales/supplierManagement/allReport",
   supplierManagementReport: "/sales/supplierManagement/report",

@@ -1,19 +1,18 @@
 import {
   PlusOutlined,
-  ReloadOutlined,
   SaveOutlined,
-  SearchOutlined,
 } from "@ant-design/icons";
 import {
   Button,
   Col,
+  DatePicker,
   Empty,
   Form,
   Input,
   Row,
   Select,
-  Space,
   Table,
+  Tag,
   message,
 } from "antd";
 import { useMemo, useState } from "react";
@@ -24,9 +23,12 @@ import Section from "../../../components/common/section/Section";
 import MainInputPrice from "../../../components/ui/inputPrice/MainInputPrice";
 import {
   useAddSalesCustomerCashInMutation,
+  useGetSalesCustomerPayHistoryQuery,
   useGetSalesCustomerQuery,
 } from "../../../features/sales/customer/salesCustomerApiSlice";
 import removeComma from "../../../util/removeComma";
+
+const { RangePicker } = DatePicker;
 
 function SalesCustomerCashInModal({ onClose }) {
   const [form] = Form.useForm();
@@ -35,14 +37,14 @@ function SalesCustomerCashInModal({ onClose }) {
   const { data, isLoading } = useGetSalesCustomerQuery();
   const [addCashIn] = useAddSalesCustomerCashInMutation();
 
-  const customers = useMemo(() => {
+  const customerListForModal = useMemo(() => {
     if (data?.success && Array.isArray(data?.data)) return data.data;
     return [];
   }, [data]);
 
   const handleSubmit = async (values) => {
     const payload = {
-      mijoz_id: values.mijoz_id,
+      client_id: values.mijoz_id,
       naqdsum: removeComma(values.naqdsum) || 0,
       naqdusd: removeComma(values.naqdusd) || 0,
       valyuta: removeComma(values.valyuta) || 0,
@@ -93,7 +95,7 @@ function SalesCustomerCashInModal({ onClose }) {
             placeholder="Mijozni tanlash"
             loading={isLoading}
             optionFilterProp="label"
-            options={customers.map((item) => ({
+            options={customerListForModal.map((item) => ({
               value: item.id,
               label: `${item.fio} | Balans: ${item.balans || 0}`,
             }))}
@@ -124,68 +126,86 @@ function SalesCustomerCashInModal({ onClose }) {
 
 function SalesCustomerCashIn() {
   const [open, setOpen] = useState(false);
-  const { data, isLoading, isError, refetch } = useGetSalesCustomerQuery();
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [dates, setDates] = useState({ start: "", end: "" });
+  const { data: customerList, isLoading: customerLoading } = useGetSalesCustomerQuery();
+  const { data, isLoading, isError, refetch } = useGetSalesCustomerPayHistoryQuery({
+    clientId: selectedCustomer || 0,
+    start: dates.start,
+    end: dates.end,
+  });
+
+  const customerOptions = useMemo(() => {
+    if (customerList?.success && Array.isArray(customerList?.data)) {
+      return customerList.data;
+    }
+    return [];
+  }, [customerList]);
 
   const tableData = useMemo(() => {
     if (data?.success && Array.isArray(data?.data)) return data.data;
     return [];
   }, [data]);
 
-  const getColumnSearchProps = (dataIndex) => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
-      <div style={{ padding: 8 }} onKeyDown={(event) => event.stopPropagation()}>
-        <Input
-          placeholder="Qidirish"
-          value={selectedKeys[0]}
-          onChange={(event) =>
-            setSelectedKeys(event.target.value ? [event.target.value] : [])
-          }
-          onPressEnter={() => confirm()}
-          style={{ marginBottom: 8, display: "block" }}
-        />
-        <Space>
-          <Button
-            type="primary"
-            icon={<SearchOutlined />}
-            size="small"
-            onClick={() => confirm()}
-          >
-            Qidirish
-          </Button>
-          <Button
-            size="small"
-            onClick={() => {
-              clearFilters?.();
-              confirm();
-            }}
-          >
-            Tozalash
-          </Button>
-        </Space>
-      </div>
-    ),
-    filterIcon: (filtered) => (
-      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-    ),
-    onFilter: (value, record) =>
-      String(record?.[dataIndex] || "")
-        .toLowerCase()
-        .includes(String(value).toLowerCase()),
-  });
+  const handleDateChange = (_, formatted) => {
+    if (!formatted[0] || !formatted[1]) {
+      setDates({ start: "", end: "" });
+      return;
+    }
+    setDates({ start: formatted[0], end: formatted[1] });
+  };
 
   const columns = [
-    { title: "ID", dataIndex: "id", key: "id", width: 70, ...getColumnSearchProps("id") },
-    { title: "Mijoz", dataIndex: "fio", key: "fio", width: 220, ...getColumnSearchProps("fio") },
-    { title: "Telefon", dataIndex: "telefon", key: "telefon", width: 140, ...getColumnSearchProps("telefon") },
+    { title: "ID", dataIndex: "id", key: "id", width: 60 },
+    { title: "Mijoz", dataIndex: "mijoz", key: "mijoz", width: 160 },
     {
-      title: "Balans",
-      dataIndex: "balans",
-      key: "balans",
-      width: 150,
-      render: (value) => <MainNumberFormat value={value || 0} />,
-      sorter: (a, b) => Number(a.balans || 0) - Number(b.balans || 0),
-      ...getColumnSearchProps("balans"),
+      title: "Summa",
+      dataIndex: "summa",
+      key: "summa",
+      width: 140,
+      render: (v) => <MainNumberFormat value={v} />,
     },
+    {
+      title: "Naqd so'm",
+      dataIndex: "naqdsum",
+      key: "naqdsum",
+      width: 130,
+      render: (v) => <MainNumberFormat value={v} />,
+    },
+    {
+      title: "Naqd USD",
+      dataIndex: "naqdusd",
+      key: "naqdusd",
+      width: 120,
+      render: (v) => <MainNumberFormat value={v} />,
+    },
+    {
+      title: "Bank",
+      dataIndex: "bank",
+      key: "bank",
+      width: 120,
+      render: (v) => <MainNumberFormat value={v} />,
+    },
+    {
+      title: "Karta",
+      dataIndex: "karta",
+      key: "karta",
+      width: 120,
+      render: (v) => <MainNumberFormat value={v} />,
+    },
+    { title: "Izoh", dataIndex: "izoh", key: "izoh", width: 180 },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: 130,
+      render: (status) => (
+        <Tag color={status === "checked" ? "cyan-inverse" : "red-inverse"}>
+          {status === "checked" ? "TASDIQLANGAN" : "TASDIQLANMAGAN"}
+        </Tag>
+      ),
+    },
+    { title: "Vaqt", dataIndex: "vaqt", key: "vaqt", width: 140 },
   ];
 
   return (
@@ -201,9 +221,30 @@ function SalesCustomerCashIn() {
             </Button>
           </Col>
           <Col xs={24} sm={8}>
-            <Button icon={<ReloadOutlined />} onClick={refetch} block>
-              Qayta yuklash
-            </Button>
+            <Select
+              style={{ width: "100%" }}
+              placeholder="Mijozni tanlang"
+              allowClear
+              showSearch
+              loading={customerLoading}
+              onChange={(val) => setSelectedCustomer(val || null)}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {customerOptions.map((c) => (
+                <Select.Option value={c.id} key={c.id}>
+                  {c.fio}
+                </Select.Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={8}>
+            <RangePicker
+              format="DD.MM.YYYY"
+              style={{ width: "100%" }}
+              onChange={handleDateChange}
+            />
           </Col>
         </Row>
 

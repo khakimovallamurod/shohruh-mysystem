@@ -10,7 +10,7 @@ import SalesHome from "./page/sales/home/SalesHome";
 import SalesKassa from "./page/sales/kassa/SalesKassa";
 import SalesCustomer from "./page/sales/customer/SalesCustomer";
 import SalesSupplierPayments from "./page/sales/taminotchi/SalesSupplierPayments";
-import SalesSupplierCashIn from "./page/sales/taminotchi/SalesSupplierCashIn";
+import SalesCustomerCashIn from "./page/sales/taminotchi/SalesCustomerCashIn";
 import SalesRazilka from "./page/sales/razilka/SalesRazilka";
 import SalesProductReception from "./page/sales/productReception/SalesProductReception";
 import AdminSupplierManagement from "./page/admin/supplierManagement/AdminSupplierManagement";
@@ -79,8 +79,8 @@ function AppRouter() {
             element={<SalesSupplierPayments />}
           />
           <Route
-            path={sales_routes.supplierCashIn}
-            element={<SalesSupplierCashIn />}
+            path={sales_routes.customerCashIn}
+            element={<SalesCustomerCashIn />}
           />
           <Route
             path={sales_routes.supplierManagementAllReport}

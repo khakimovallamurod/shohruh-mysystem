@@ -49,8 +49,8 @@ const items = [
     <BankOutlined />
   ),
   getItem(
-    "Ta'minotchidan pul olish",
-    sales_routes.supplierCashIn,
+    "Mijozdan pul olish",
+    sales_routes.customerCashIn,
     <WalletOutlined />
   ),
   getItem(
