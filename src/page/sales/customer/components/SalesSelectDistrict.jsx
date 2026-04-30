@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useGetSalesDistrictMutation } from "../../../../features/sales/salesApiSlice";
 import { Button, Form, Select, message } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
@@ -13,20 +13,16 @@ function SalesSelectDistrict({ regionId, form, status }) {
   /* API */
   const [getDistrict] = useGetSalesDistrictMutation();
 
-  useEffect(() => {
-    if (regionId) {
-      handleGetDistrict(regionId);
-    }
-  }, [regionId]);
-
   /* Handle get district */
-  const handleGetDistrict = async (regionId) => {
+  const handleGetDistrict = useCallback(async (id = regionId) => {
+    if (!id) return;
     setDistrictOptions([]);
     /* Set status */
+    setRegionConErr(false);
     setFormStatus("");
     setIsLoading(true);
     try {
-      const resData = await getDistrict(regionId).unwrap();
+      const resData = await getDistrict(id).unwrap();
 
       if (resData?.success === true) {
         if (resData?.data && resData?.data?.length) {
@@ -40,7 +36,7 @@ function SalesSelectDistrict({ regionId, form, status }) {
         setFormStatus("");
       } else if (resData?.success === false) {
         setFormStatus("error");
-        setRegionConErr();
+        setRegionConErr(true);
         if (resData?.message) {
           message.error(resData.message);
         }
@@ -51,12 +47,19 @@ function SalesSelectDistrict({ regionId, form, status }) {
     } catch (err) {
       if (err.status === "FETCH_ERROR") {
         setFormStatus("error");
+        setRegionConErr(true);
         message.warning("Ulanishda xatolik! Qaytadan urinib ko'ring!");
       }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [form, getDistrict, regionId]);
+
+  useEffect(() => {
+    if (regionId) {
+      handleGetDistrict(regionId);
+    }
+  }, [handleGetDistrict, regionId]);
 
   return (
     <Form.Item

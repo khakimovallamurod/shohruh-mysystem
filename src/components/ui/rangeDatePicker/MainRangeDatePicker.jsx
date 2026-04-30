@@ -35,7 +35,7 @@ function MainRangeDatePicker({ setValue = () => {}, value }) {
       setDate({ ...newDate });
       setValue({ ...newDate });
     }
-  }, [value]);
+  }, [setValue, value]);
 
   const handleChangeData = (e) => {
     const name = e.target.name;

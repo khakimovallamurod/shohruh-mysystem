@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import React, { useState } from "react";
 import Section from "../../../components/common/section/Section";
 import { useGetCashierBalanceByDateMutation } from "../../../features/cashier/balance/cashierBalanceApiSlice";
-import { useGetCashierExpensesByDateQuery } from "../../../features/cashier/expenses/cashierExpensesApiSlice";
 import formatCurrency from "../../../util/formatCurrency";
 
 const { RangePicker } = DatePicker;
@@ -43,14 +42,6 @@ function SalesKassa() {
   const [loading, setLoading] = useState(false);
 
   const [getBalans] = useGetCashierBalanceByDateMutation();
-
-  const expensesRes = useGetCashierExpensesByDateQuery({
-    start: dates.start,
-    end: dates.end,
-    expenseCategory: null,
-  });
-
-  const expensesTotal = expensesRes?.data?.data;
 
   const handleDateChange = async (_, formatted) => {
     if (!formatted[0] || !formatted[1]) return;

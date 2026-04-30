@@ -25,7 +25,7 @@ import {
   Typography,
   message,
 } from "antd";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useGetAdminIndexDataQuery } from "../../../features/admin/statistic/adminStatisticApiSlice";
 import { useGetSalesCustomerQuery } from "../../../features/sales/customer/salesCustomerApiSlice";
 import {
@@ -105,7 +105,7 @@ function StepProducts({ salesProducts, indexData, selected, onToggle, customerCa
   }, [salesProducts]);
 
   /* Merge index data items with sales product data */
-  const mergeProducts = (items, source) =>
+  const mergeProducts = useCallback((items, source) =>
     (items || []).map((item) => {
       const sp = salesMap[item.id] || {};
       const categoryPrice = (sp.price_list || []).find(
@@ -120,15 +120,15 @@ function StepProducts({ salesProducts, indexData, selected, onToggle, customerCa
         price_list: sp.price_list || [],
         source,
       };
-    });
+    }), [customerCategoryId, salesMap]);
 
   const freshList = useMemo(
     () => mergeProducts(indexData?.svejiy, "svejiy"),
-    [indexData, salesMap, customerCategoryId]
+    [indexData?.svejiy, mergeProducts]
   );
   const coldList = useMemo(
     () => mergeProducts(indexData?.xolodelnik, "xolodelnik"),
-    [indexData, salesMap, customerCategoryId]
+    [indexData?.xolodelnik, mergeProducts]
   );
 
   const filterBySearch = (list) =>

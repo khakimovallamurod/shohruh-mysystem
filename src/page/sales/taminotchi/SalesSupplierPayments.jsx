@@ -1,6 +1,5 @@
 import { CheckOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Col, DatePicker, Empty, Row, Select, Tag, Tooltip } from "antd";
-import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
 import MainModal from "../../../components/common/modal/MainModal";
 import MainNumberFormat from "../../../components/common/numberFormat/MainNumberFormat";
@@ -17,8 +16,6 @@ import { Table } from "antd";
 const { RangePicker } = DatePicker;
 
 function SalesSupplierPayments() {
-  const today = dayjs();
-
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [dates, setDates] = useState({ start: "", end: "" });
   const [openPayModal, setOpenPayModal] = useState(false);

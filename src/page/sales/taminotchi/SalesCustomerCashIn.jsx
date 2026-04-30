@@ -1,6 +1,7 @@
 import {
   PlusOutlined,
   SaveOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -13,6 +14,7 @@ import {
   Select,
   Table,
   Tag,
+  Tooltip,
   message,
 } from "antd";
 import { useMemo, useState } from "react";
@@ -25,6 +27,7 @@ import {
   useAddSalesCustomerCashInMutation,
   useGetSalesCustomerPayHistoryQuery,
   useGetSalesCustomerQuery,
+  useSendSalesCustomerCashInMessageMutation,
 } from "../../../features/sales/customer/salesCustomerApiSlice";
 import removeComma from "../../../util/removeComma";
 
@@ -128,7 +131,10 @@ function SalesCustomerCashIn() {
   const [open, setOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [dates, setDates] = useState({ start: "", end: "" });
+  const [sendingId, setSendingId] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
   const { data: customerList, isLoading: customerLoading } = useGetSalesCustomerQuery();
+  const [sendCashInMessage] = useSendSalesCustomerCashInMessageMutation();
   const { data, isLoading, isError, refetch } = useGetSalesCustomerPayHistoryQuery({
     clientId: selectedCustomer || 0,
     start: dates.start,
@@ -153,6 +159,23 @@ function SalesCustomerCashIn() {
       return;
     }
     setDates({ start: formatted[0], end: formatted[1] });
+  };
+
+  const handleSendMessage = async (record) => {
+    if (!record?.id) return;
+    setSendingId(record.id);
+    try {
+      const resData = await sendCashInMessage({ history_id: record.id }).unwrap();
+      if (resData?.success) {
+        messageApi.success(resData?.message || "Xabar yuborildi");
+      } else {
+        messageApi.error(resData?.message || "Xabar yuborilmadi");
+      }
+    } catch (err) {
+      messageApi.warning("Ulanishda xatolik!");
+    } finally {
+      setSendingId(null);
+    }
   };
 
   const columns = [
@@ -206,10 +229,31 @@ function SalesCustomerCashIn() {
       ),
     },
     { title: "Vaqt", dataIndex: "vaqt", key: "vaqt", width: 140 },
+    {
+      title: "Xabar",
+      key: "xabar",
+      width: 80,
+      fixed: "right",
+      align: "center",
+      render: (_, record) => (
+        <Tooltip title="Mijozga xabar yuborish">
+          <Button
+            size="small"
+            shape="circle"
+            type="primary"
+            icon={<SendOutlined />}
+            loading={sendingId === record.id}
+            disabled={sendingId !== null && sendingId !== record.id}
+            onClick={() => handleSendMessage(record)}
+          />
+        </Tooltip>
+      ),
+    },
   ];
 
   return (
     <>
+      {contextHolder}
       <MainModal open={open} onClose={() => setOpen(false)}>
         <SalesCustomerCashInModal onClose={() => { setOpen(false); refetch(); }} />
       </MainModal>
@@ -253,7 +297,7 @@ function SalesCustomerCashIn() {
           dataSource={tableData}
           loading={isLoading}
           rowKey="id"
-          scroll={{ x: 620, y: 620 }}
+          scroll={{ x: 760, y: 620 }}
           locale={{
             emptyText: () => {
               if (isError && !isLoading) return <MainRefetchBtn refetch={refetch} />;

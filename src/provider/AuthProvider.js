@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useGetUserDataMutation } from "../features/auth/authApiSlice";
@@ -28,12 +28,7 @@ function AuthProvider({ setLoading, children }) {
     }
   }, [dispatch, setLoading, token]);
 
-  /* API */
-  useEffect(() => {
-    if (token) handleGetUserData();
-  }, [token]);
-
-  const handleGetUserData = async () => {
+  const handleGetUserData = useCallback(async () => {
     setLoading(true);
     try {
       const res = await getUserData().unwrap();
@@ -68,7 +63,12 @@ function AuthProvider({ setLoading, children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, getUserData, setLoading]);
+
+  /* API */
+  useEffect(() => {
+    if (token) handleGetUserData();
+  }, [handleGetUserData, token]);
 
   return <>{children}</>;
 }

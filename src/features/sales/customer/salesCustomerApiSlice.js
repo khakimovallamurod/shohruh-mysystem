@@ -52,6 +52,13 @@ const salesCustomerApiSlice = apiSlice
         query: (params) => SALES_API.CUSTOMER_PAY_HISTORY_GET(params),
         providesTags: [SALES_CUSTOMER_TAG],
       }),
+      sendSalesCustomerCashInMessage: builder.mutation({
+        query: (body) => ({
+          url: SALES_API.CUSTOMER_CASH_IN_SEND_MESSAGE,
+          method: "POST",
+          body,
+        }),
+      }),
     }),
   });
 
@@ -63,4 +70,5 @@ export const {
   useEditSalesCustomerMutation,
   useAddSalesCustomerCashInMutation,
   useGetSalesCustomerPayHistoryQuery,
+  useSendSalesCustomerCashInMessageMutation,
 } = salesCustomerApiSlice;

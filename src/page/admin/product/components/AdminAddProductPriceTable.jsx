@@ -1,6 +1,6 @@
 import { ReloadOutlined, SaveOutlined } from "@ant-design/icons";
 import { Button, Form, Select, message } from "antd";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ExportTable from "../../../../components/common/exportTable/ExportTable";
 import MainDataTable from "../../../../components/ui/dataTable/MainDataTable";
 import MainInputPrice from "../../../../components/ui/inputPrice/MainInputPrice";
@@ -45,19 +45,11 @@ function AdminAddProductPriceTable({
     return [];
   }, [categoryRes?.data]);
 
-  useEffect(() => {
-    if (categoryOptions?.length) {
-      const selectedId = categoryOptions[0]?.id;
-      form.setFieldValue("tarif", selectedId);
-      handleSelect(selectedId);
-    }
-  }, [categoryOptions]);
-
-  const handleSelect = (val) => {
+  const handleSelect = useCallback((val) => {
     data?.forEach((item) => {
       if (item?.price_list && item?.price_list?.length) {
         const res = item.price_list?.find(
-          (item) => parseInt(item?.client_category_id) === parseInt(val)
+          (inItem) => parseInt(inItem?.client_category_id) === parseInt(val)
         );
         if (res) {
           form.setFieldValue(item?.id, res?.price);
@@ -67,7 +59,15 @@ function AdminAddProductPriceTable({
       }
     });
     setSelectedCategory(val);
-  };
+  }, [data, form]);
+
+  useEffect(() => {
+    if (categoryOptions?.length) {
+      const selectedId = categoryOptions[0]?.id;
+      form.setFieldValue("tarif", selectedId);
+      handleSelect(selectedId);
+    }
+  }, [categoryOptions, form, handleSelect]);
 
   const exportData = useMemo(() => {
     if (!data.length || !selectedCategory) return [];
@@ -115,15 +115,16 @@ function AdminAddProductPriceTable({
     try {
       const sendData = {
         category_id: selectedCategory,
-        products_list: data?.map((item) => {
-          const resKey = Object.keys(values).find((key) => key === item?.id);
-          if (resKey) {
+        products_list: data
+          ?.map((item) => {
+            const resKey = Object.keys(values).find((key) => key === item?.id);
+            if (!resKey) return null;
             return {
               product_id: item?.id,
               price: removeComma(values[resKey]),
             };
-          }
-        }),
+          })
+          .filter(Boolean),
       };
       const resData = await addProductPrice(sendData).unwrap();
       if (resData?.success === true) {
